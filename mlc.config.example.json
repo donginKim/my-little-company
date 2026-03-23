@@ -1,0 +1,30 @@
+{
+  "llm": {
+    "defaultProvider": "anthropic",
+    "providers": {
+      "anthropic": {
+        "type": "anthropic",
+        "defaultModel": "claude-sonnet-4-6"
+      },
+      "openai": {
+        "type": "openai",
+        "defaultModel": "gpt-4o"
+      },
+      "openai-mini": {
+        "type": "openai",
+        "defaultModel": "gpt-4o-mini"
+      },
+      "ollama": {
+        "type": "ollama",
+        "baseUrl": "http://localhost:11434",
+        "defaultModel": "llama3"
+      },
+      "ollama-codellama": {
+        "type": "ollama",
+        "baseUrl": "http://localhost:11434",
+        "defaultModel": "codellama"
+      }
+    }
+  },
+  "safeMode": false
+}

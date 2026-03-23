@@ -1,0 +1,98 @@
+# mlc.config.yaml
+# My Little Company 설정 파일
+#
+# 환경변수 참조: ${VAR_NAME}
+# 파일 위치 탐색 순서:
+#   1. 프로젝트 루트 mlc.config.yaml / .yml / .json
+#   2. ~/.mlc/config.yaml / config.json
+#   3. 환경변수 자동 감지
+
+# ──────────────────────────────────────────────
+# LLM 프로바이더 정의
+# ──────────────────────────────────────────────
+llm:
+  # 역할에서 provider를 지정하지 않으면 이 프로바이더를 사용
+  defaultProvider: anthropic
+
+  providers:
+    # Anthropic Claude
+    anthropic:
+      type: anthropic
+      apiKey: ${ANTHROPIC_API_KEY}
+      defaultModel: claude-sonnet-4-6
+
+    # Anthropic - 빠른 응답용
+    claude-haiku:
+      type: anthropic
+      apiKey: ${ANTHROPIC_API_KEY}
+      defaultModel: claude-haiku-4-5-20251001
+
+    # OpenAI GPT-4o
+    openai:
+      type: openai
+      apiKey: ${OPENAI_API_KEY}
+      defaultModel: gpt-4o
+
+    # OpenAI - 비용 절감용
+    openai-mini:
+      type: openai
+      apiKey: ${OPENAI_API_KEY}
+      defaultModel: gpt-4o-mini
+
+    # Ollama - 로컬 범용
+    ollama:
+      type: ollama
+      baseUrl: http://localhost:11434
+      defaultModel: llama3
+
+    # Ollama - 코드 특화
+    ollama-code:
+      type: ollama
+      baseUrl: http://localhost:11434
+      defaultModel: codellama
+
+# ──────────────────────────────────────────────
+# 역할별 설정
+#
+# provider  : 위 providers 맵의 키
+# model     : 프로바이더 기본 모델을 오버라이드
+# temperature:
+#   0.0 ~ 0.3  정확하고 일관된 출력 (코드, 설계)
+#   0.4 ~ 0.7  균형 잡힌 출력 (리뷰, 분석)
+#   0.8 ~ 1.2  창의적이고 다양한 출력 (기획, 아이디어)
+# maxTokens : 최대 응답 길이
+# ──────────────────────────────────────────────
+roles:
+  pm:
+    provider: anthropic
+    model: claude-sonnet-4-6
+    temperature: 0.8
+    maxTokens: 4096
+
+  architect:
+    provider: openai
+    model: gpt-4o
+    temperature: 0.3
+    maxTokens: 8192
+
+  developer:
+    provider: ollama-code
+    model: codellama
+    temperature: 0.1
+    maxTokens: 8192
+
+  reviewer:
+    provider: anthropic
+    model: claude-sonnet-4-6
+    temperature: 0.5
+    maxTokens: 4096
+
+  # QA 역할 (선택적)
+  # - role: qa
+  #   provider: anthropic
+  #   model: claude-sonnet-4-6
+  #   temperature: 0.3
+  #   maxTokens: 4096
+
+# true 로 설정하면 파일을 실제로 쓰지 않습니다 (diff 미리보기만)
+safeMode: false
