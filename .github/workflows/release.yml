@@ -125,6 +125,35 @@ jobs:
           echo "linux=$(cat bin/mlc-linux-x64.sha256)"     >> $GITHUB_OUTPUT
           echo "win=$(cat bin/mlc-win-x64.exe.sha256)"     >> $GITHUB_OUTPUT
 
+      - name: Homebrew 포뮬러 업데이트
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          MACOS_SHA=$(cat bin/mlc-macos-arm64.sha256)
+          LINUX_SHA=$(cat bin/mlc-linux-x64.sha256)
+
+          git clone https://x-access-token:${GH_TOKEN}@github.com/donginKim/homebrew-mlc.git
+          cd homebrew-mlc
+
+          sed -i "s/version \".*\"/version \"$VERSION\"/" Formula/mlc.rb
+          # macOS sha256 교체 (첫 번째 PLACEHOLDER 또는 기존 값)
+          awk -v sha="$MACOS_SHA" '
+            /on_macos/,/end/ { if (/sha256/) { sub(/"[^"]*"/, "\"" sha "\"") } }
+            { print }
+          ' Formula/mlc.rb > /tmp/mlc.rb && mv /tmp/mlc.rb Formula/mlc.rb
+          # Linux sha256 교체
+          awk -v sha="$LINUX_SHA" '
+            /on_linux/,/end/ { if (/sha256/) { sub(/"[^"]*"/, "\"" sha "\"") } }
+            { print }
+          ' Formula/mlc.rb > /tmp/mlc.rb && mv /tmp/mlc.rb Formula/mlc.rb
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/mlc.rb
+          git commit -m "chore: mlc v$VERSION 포뮬러 업데이트"
+          git push
+
       - name: GitHub Release 생성
         uses: softprops/action-gh-release@v2
         with:
